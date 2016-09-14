@@ -2,7 +2,7 @@ NAME=rapd2
 obj-m := $(NAME).o
 
 all:
-	$(CC) rapd2_server.c -o rapd2_server
+	$(CC) rapd2_server.c common.c -o rapd2_server
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 
 load: all
