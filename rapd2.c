@@ -1,11 +1,11 @@
-#include <linux/module.h>
-#include <linux/kernel.h>
-#include <linux/version.h>
-#include <linux/fs.h>
+#include <asm/uaccess.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/errno.h>
-#include <asm/uaccess.h>
+#include <linux/fs.h>
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/version.h>
 
 #include "rapd2_ioctl.h"
 
@@ -22,27 +22,30 @@ static int my_close(struct inode *i, struct file *f) { return 0; }
 static long my_ioctl(struct file *f, unsigned int cmd, unsigned long arg) {
   struct rapd2_msg msg;
 
-  printk(INFO "cmd: %d\n", cmd);
-
   switch (cmd) {
   case RAPD2_SEND_MSG:
-    if (copy_from_user(&msg, (struct rapd2_msg *)arg, sizeof(struct rapd2_msg))) {
+    if (copy_from_user(&msg, (struct rapd2_msg *)arg,
+                       sizeof(struct rapd2_msg))) {
       return -EACCES;
     }
 
+    msg.buffer[3] = 'A';
+
     printk(INFO "msg.length: %d\n", msg.length);
     printk(INFO "msg.buffer: %s\n", msg.buffer);
+
+    if (copy_to_user((struct rapd2_msg *)arg, &msg, sizeof(struct rapd2_msg))) {
+      return -EACCES;
+    }
   }
 
   return 0;
 }
 
-
 static struct file_operations rapd2_fops = {.owner = THIS_MODULE,
                                             .open = my_open,
                                             .release = my_close,
-                                            .unlocked_ioctl = my_ioctl
-};
+                                            .unlocked_ioctl = my_ioctl};
 
 static int __init rapd2_ioctl_init(void) {
   int ret;

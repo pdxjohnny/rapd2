@@ -9,15 +9,12 @@
 
 #include "common.h"
 #include "rapd2_ioctl.h"
+#include "rapd2_comm.h"
 
 int main(int argc, char *argv[]) {
-  int fd;
   ssize_t msg_length = 0;
-  char ioctl_device[] = "/dev/rapd2";
   char *tmp;
   struct rapd2_msg msg;
-
-  printf("getuid before: %d\n", getuid());
 
   if (argc > 1) {
     tmp = file_to_string(argv[1], &msg_length);
@@ -28,23 +25,22 @@ int main(int argc, char *argv[]) {
     printf("ERROR: You need to give some input to send to rapd2\n");
     return EXIT_FAILURE;
   }
+
   memcpy(msg.buffer, tmp, msg_length);
   free(tmp);
   msg.length = (__u32) msg_length;
 
-  fd = open(ioctl_device, O_RDWR);
-  if (fd < 0) {
-    perror("open /dev/rapd2: ");
-    return EXIT_FAILURE;
-  }
+  printf("msg.length: %d\n", msg.length);
+  printf("msg.buffer: %s\n", msg.buffer);
 
-  if (ioctl(fd, RAPD2_SEND_MSG, &msg) == -1) {
-    perror("when sending: ");
-  }
+  rapd2_comm_open();
 
-  close(fd);
+  rapd2_comm(&msg);
 
-  printf("getuid after: %d\n", getuid());
+  rapd2_comm_close();
+
+  printf("msg.length: %d\n", msg.length);
+  printf("msg.buffer: %s\n", msg.buffer);
 
   return 0;
 }
