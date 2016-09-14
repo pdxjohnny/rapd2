@@ -1,0 +1,12 @@
+*.o
+*.ko
+*.cmd
+*.swp
+*.mod
+modules.order
+*.mod.c
+*.symvers
+*__pycache__
+.venv
+rapd2
+rapd2_server
