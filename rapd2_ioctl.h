@@ -3,6 +3,8 @@
 #include <linux/ioctl.h>
 #include <linux/types.h>
 
+#define RAPD2_IOCTL_DEVICE "/dev/rapd2"
+
 #define FIRST_MINOR 1337
 #define MINOR_CNT 7331
 
